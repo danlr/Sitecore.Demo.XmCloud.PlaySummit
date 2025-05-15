@@ -1,28 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Dynamic;
-using System.IO;
 using System.Linq;
-using DocumentFormat.OpenXml.Presentation;
+using DocumentFormat.OpenXml.Vml.Office;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Sitecore.Abstractions;
-using Sitecore.Common;
-using Sitecore.Configuration;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
 using Sitecore.Diagnostics;
 using Sitecore.LayoutService.Configuration;
-using Sitecore.LayoutService.Helpers;
 using Sitecore.LayoutService.ItemRendering.ContentsResolvers;
-using Sitecore.LayoutService.Serialization.FieldSerializers;
 using Sitecore.LayoutService.Serialization.Pipelines.GetFieldSerializer;
 using Sitecore.Links;
 using Sitecore.Links.UrlBuilders;
 using Sitecore.Mvc.Presentation;
-using Sitecore.Pipelines.HasPresentation;
-using Sitecore.Resources.Media;
-using Sitecore.Services.Infrastructure.Sitecore.Data;
 
 namespace Sitecore.Demo.Edge.Website.SitecoreExtensions.LayoutService
 {
@@ -51,46 +41,62 @@ namespace Sitecore.Demo.Edge.Website.SitecoreExtensions.LayoutService
             Assert.IsNotNull(configItem, nameof(configItem));
             Assert.IsNotNull(rootItem, nameof(rootItem));
 
-            dynamic item = new ExpandoObject();
-            item.id = configItem.ID.ToString();
-            item.path = configItem.Paths.FullPath;
-
             ImageField logoField = (ImageField)configItem.Fields["HeaderLogo"];
-            if (logoField?.MediaItem != null)
-            {
-                var imageUrl = this.mediaManager.GetMediaUrl(logoField.MediaItem);
-                var altText = logoField.Alt;
-
-                item.headerLogo = new ExpandoObject();
-                item.headerLogo.jsonValue = new ExpandoObject();
-                item.headerLogo.jsonValue.value = new ExpandoObject();
-                item.headerLogo.jsonValue.value.src = imageUrl;
-                item.headerLogo.jsonValue.value.alt = altText;
-                item.headerLogo.alt = altText;
-            }
-
-            item.links = new ExpandoObject();
-            item.links.displayName = "Main navigation";
-            item.links.children = new ExpandoObject();
+            var imageUrl = this.mediaManager.GetMediaUrl(logoField.MediaItem);
+            var altText = logoField.Alt;
 
             dynamic links = new List<ExpandoObject>();
             var pages = rootItem.Children.InnerChildren.Where(x => x["ShowInMainNavigation"] == "1");
             foreach (var page in pages)
             {
-                dynamic link = new ExpandoObject();
-
-                link.displayName = !string.IsNullOrWhiteSpace(page["NavigationTitle"]) ? page["NavigationTitle"] : page.DisplayName;
-                link.field = new ExpandoObject();
-                link.field.jsonValue = new ExpandoObject();
-                link.field.jsonValue.value = new ExpandoObject();
-                link.field.jsonValue.value.href = this.linkManager.GetItemUrl(item, new ItemUrlBuilderOptions { AlwaysIncludeServerUrl = false });
-                link.field.jsonValue.value.id = page.ID;
-                link.field.jsonValue.value.linktype = "internal";
+                dynamic link = new
+                {
+                    displayName = !string.IsNullOrWhiteSpace(page["NavigationTitle"]) ? page["NavigationTitle"] : page.DisplayName,
+                    field = new
+                    {
+                        jsonValue = new
+                        {
+                            value = new
+                            {
+                                href = this.linkManager.GetItemUrl(page, new ItemUrlBuilderOptions { AlwaysIncludeServerUrl = false }),
+                                id = page.ID,
+                                linktype = "internal"
+                            }
+                        }
+                    }
+                };
 
                 links.Add(link);
             }
 
-            item.links.children.results = links;
+            dynamic item = new
+            {
+                id = configItem.ID.ToString(),
+                path = configItem.Paths.FullPath,
+                headerLogo = new
+                {
+                    jsonValue = new
+                    {
+                        value = new
+                        {
+                            src = imageUrl,
+                            alt = altText
+                        }
+                    },
+                    alt = altText
+                },
+                links = new
+                {
+                    displayName = "Main navigation",
+                    children = new
+                    {
+                        results = links
+                    }
+        }
+            };
+
+            var jsonLog = JsonConvert.SerializeObject(item, Formatting.Indented);
+            Log.Info(jsonLog, this);
 
             return item;
         }
