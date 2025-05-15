@@ -45,30 +45,6 @@ namespace Sitecore.Demo.Edge.Website.SitecoreExtensions.LayoutService
             var imageUrl = this.mediaManager.GetMediaUrl(logoField.MediaItem);
             var altText = logoField.Alt;
 
-            dynamic links = new List<ExpandoObject>();
-            var pages = rootItem.Children.InnerChildren.Where(x => x["ShowInMainNavigation"] == "1");
-            foreach (var page in pages)
-            {
-                dynamic link = new
-                {
-                    displayName = !string.IsNullOrWhiteSpace(page["NavigationTitle"]) ? page["NavigationTitle"] : page.DisplayName,
-                    field = new
-                    {
-                        jsonValue = new
-                        {
-                            value = new
-                            {
-                                href = this.linkManager.GetItemUrl(page, new ItemUrlBuilderOptions { AlwaysIncludeServerUrl = false }),
-                                id = page.ID,
-                                linktype = "internal"
-                            }
-                        }
-                    }
-                };
-
-                links.Add(link);
-            }
-
             dynamic item = new
             {
                 id = configItem.ID.ToString(),
@@ -90,9 +66,24 @@ namespace Sitecore.Demo.Edge.Website.SitecoreExtensions.LayoutService
                     displayName = "Main navigation",
                     children = new
                     {
-                        results = links
+                        results = rootItem.Children.InnerChildren.Where(x => x["ShowInMainNavigation"] == "1").Select(x => new
+                        {
+                            displayName = !string.IsNullOrWhiteSpace(x["NavigationTitle"]) ? x["NavigationTitle"] : x.DisplayName,
+                            field = new
+                            {
+                                jsonValue = new
+                                {
+                                    value = new
+                                    {
+                                        href = this.linkManager.GetItemUrl(x, new ItemUrlBuilderOptions { AlwaysIncludeServerUrl = false }),
+                                        id = x.ID,
+                                        linktype = "internal"
+                                    }
+                                }
+                            }
+                        })
                     }
-        }
+                }
             };
 
             var jsonLog = JsonConvert.SerializeObject(item, Formatting.Indented);
