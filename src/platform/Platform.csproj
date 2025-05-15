@@ -102,6 +102,7 @@
     <Compile Include="Pipelines\DemoCmpFieldMapping.cs" />
     <Compile Include="Pipelines\DemoContextExtension.cs" />
     <Compile Include="Pipelines\ParseXml.cs" />
+    <Compile Include="SitecoreExtensions\LayoutService\MainNavigationRenderingContentsResolver.cs" />
     <Compile Include="Utilities\ClearAllCaches.aspx.cs">
       <DependentUpon>ClearAllCaches.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -145,6 +146,7 @@
       <DependentUpon>Restart.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
