@@ -45,54 +45,54 @@ namespace Sitecore.Demo.Edge.Website.SitecoreExtensions.LayoutService
             var imageUrl = this.mediaManager.GetMediaUrl(logoField.MediaItem);
             var altText = logoField.Alt;
 
-            dynamic data = new
+            var result = new
             {
-                item = new
+                data = new
                 {
-                    id = configItem.ID.ToString(),
-                    path = configItem.Paths.FullPath,
-                    headerLogo = new
+                    item = new
                     {
-                        jsonValue = new
+                        id = configItem.ID.ToString(),
+                        path = configItem.Paths.FullPath,
+                        headerLogo = new
                         {
-                            value = new
+                            jsonValue = new
                             {
-                                src = imageUrl,
-                                alt = altText
-                            }
-                        },
-                        alt = altText
-                    }
-                },
-                links = new
-                {
-                    displayName = "Main navigation",
-                    children = new
-                    {
-                        results = rootItem.Children.InnerChildren.Where(x => x["ShowInMainNavigation"] == "1").Select(x => new
-                        {
-                            displayName = !string.IsNullOrWhiteSpace(x["NavigationTitle"]) ? x["NavigationTitle"] : x.DisplayName,
-                            field = new
-                            {
-                                jsonValue = new
+                                value = new
                                 {
-                                    value = new
+                                    src = imageUrl,
+                                    alt = altText
+                                }
+                            },
+                            alt = altText
+                        }
+                    },
+                    links = new
+                    {
+                        displayName = "Main navigation",
+                        children = new
+                        {
+                            results = rootItem.Children.InnerChildren.Where(x => x["ShowInMainNavigation"] == "1").Select(x => new
+                            {
+                                displayName = !string.IsNullOrWhiteSpace(x["NavigationTitle"]) ? x["NavigationTitle"] : x.DisplayName,
+                                field = new
+                                {
+                                    jsonValue = new
                                     {
-                                        href = this.linkManager.GetItemUrl(x, new ItemUrlBuilderOptions { AlwaysIncludeServerUrl = false }),
-                                        id = x.ID,
-                                        linktype = "internal"
+                                        value = new
+                                        {
+                                            href = this.linkManager.GetItemUrl(x, new ItemUrlBuilderOptions { AlwaysIncludeServerUrl = false }),
+                                            id = x.ID,
+                                            linktype = "internal"
+                                        }
                                     }
                                 }
-                            }
-                        })
+                            })
+                        }
                     }
                 }
             };
 
-            var jsonLog = JsonConvert.SerializeObject(data, Formatting.Indented);
-            Log.Info(jsonLog, this);
-
-            return data;
+            return result;
         }
 
         private Item GetConfigItem(Item currentItem)
