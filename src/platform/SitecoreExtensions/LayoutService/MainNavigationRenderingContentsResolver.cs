@@ -45,21 +45,24 @@ namespace Sitecore.Demo.Edge.Website.SitecoreExtensions.LayoutService
             var imageUrl = this.mediaManager.GetMediaUrl(logoField.MediaItem);
             var altText = logoField.Alt;
 
-            dynamic item = new
+            dynamic data = new
             {
-                id = configItem.ID.ToString(),
-                path = configItem.Paths.FullPath,
-                headerLogo = new
+                item = new
                 {
-                    jsonValue = new
+                    id = configItem.ID.ToString(),
+                    path = configItem.Paths.FullPath,
+                    headerLogo = new
                     {
-                        value = new
+                        jsonValue = new
                         {
-                            src = imageUrl,
-                            alt = altText
-                        }
-                    },
-                    alt = altText
+                            value = new
+                            {
+                                src = imageUrl,
+                                alt = altText
+                            }
+                        },
+                        alt = altText
+                    }
                 },
                 links = new
                 {
@@ -86,10 +89,10 @@ namespace Sitecore.Demo.Edge.Website.SitecoreExtensions.LayoutService
                 }
             };
 
-            var jsonLog = JsonConvert.SerializeObject(item, Formatting.Indented);
+            var jsonLog = JsonConvert.SerializeObject(data, Formatting.Indented);
             Log.Info(jsonLog, this);
 
-            return item;
+            return data;
         }
 
         private Item GetConfigItem(Item currentItem)
