@@ -11,14 +11,8 @@ namespace Sitecore.Demo.Edge.Website.SitecoreExtensions.LayoutService
             this.UrlOptions.Language = Sitecore.Context.Item.Language;
             this.UrlOptions.LanguageEmbedding = Links.LanguageEmbedding.Always;
             this.UrlOptions.AlwaysIncludeServerUrl = false;
-            Sitecore.Diagnostics.Log.Info($"Url Always: {this.LinkProvider.GetItemUrl(item, this.UrlOptions)}", this);
 
-            var model = base.CreateNavigationModel(item, level, index, siblingCount, children, flatLevel);
-
-            this.UrlOptions.LanguageEmbedding = Links.LanguageEmbedding.AsNeeded;
-            Sitecore.Diagnostics.Log.Info($"Url AsNeeded: {this.LinkProvider.GetItemUrl(item, this.UrlOptions)}", this);
-
-            return model;
+            return base.CreateNavigationModel(item, level, index, siblingCount, children, flatLevel);
         }
     }
 }
